@@ -2,7 +2,12 @@ import datetime
 from databasegenerator import *
 
 from databasegenerator import Master, Slave, Task, Group
+from sqlalchemy.ext.asyncio import create_async_engine
 
+engine = create_async_engine(
+        'sqlite:///database.db',
+        echo=True,
+    )
 
 async def is_exist(login: str) -> bool:
     """
