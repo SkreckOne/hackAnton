@@ -1,4 +1,5 @@
 import datetime
+from databasegenerator import *
 
 from databasegenerator import Master, Slave, Task, Group
 
@@ -11,14 +12,40 @@ async def is_exist(login: str) -> bool:
     :return True or false:
     """
 
+    return True
 
-async def get_role(login: str) -> str:
+
+async def get_user_id_by_login(login: str) -> int:
+    """
+    Gets user by login from db
+
+    :param login:
+    :return:
+    """
+
+    return 1
+
+
+async def get_role(id: int) -> str:
     """
     Returns user role
 
-    :param login:
+    :param id:
     :return 'master' or 'slave':
     """
+
+    return 'master'
+
+
+async def get_fullname(id: int) -> str:
+    """
+    Returns fullname
+
+    :param id:
+    :return:
+    """
+
+    return 'Василий Владмирович Панин'
 
 
 async def create_group(name: str) -> int:
