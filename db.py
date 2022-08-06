@@ -39,16 +39,11 @@ def create_group(name: str, token: str, master_id: int) -> int:
     cur.execute(f'''
     INSERT INTO "group" (name, masterid, token)
     VALUES ('{name}', {master_id}, '{token}');''')
+    return cur.execute(f"""SELECT id FROM "group" WHERE token = '{token}';""").fetchone()
 
 
 def set_salve_to_group(group_id: int, slave_id: int) -> None:
-    """
-    Sets slave to group
-
-    :param group_id:
-    :param slave_id:
-    :return None:
-    """
+    cur.execute(f"""UPDATE slave SET groupid = '{group_id}' WHERE id = '{slave_id}';""")
 
 
 def create_task(text: str, date_start: datetime.date, date_end: datetime.date, time_start: datetime.time,
@@ -64,12 +59,7 @@ def delete_group(group_id: int) -> None:
 
 
 def report_for_success(slave_id: int) -> None:
-    """
-    Sets flag tells system that slave completed him job
-
-    :param slave_id:
-    :return:
-    """
+    cur.execute(f"""UPDATE subtask SET done = true WHERE slave_id = '{slave_id}';""")
 
 
-is_exist("qwe")
+
