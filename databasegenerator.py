@@ -32,7 +32,7 @@ class Task(Base):
     task_text = Column(Text)
     masterid = Column(Integer, ForeignKey("master.id"))
     slave_id = Column(Integer, ForeignKey("slave.id"))
-    slave = relationship("Slave", backref=backref("task", uselist=False))
+    slave = relationship("Slave", backref=backref("task", uselist=False, nullable=True))
     
 
 class Slave(Base):
