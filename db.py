@@ -1,5 +1,7 @@
 import datetime
 
+from databasegenerator import Master, Slave, Task, Group
+
 
 async def is_exist(login: str) -> bool:
     """
@@ -28,7 +30,7 @@ async def create_group(name: str) -> int:
     """
 
 
-async def set_salve_to_group(group_id: int, slave_id: int) -> None:
+async def set_slave_to_group(group_id: int, slave_id: int) -> None:
     """
     Sets slave to group
 
@@ -52,12 +54,9 @@ async def create_task(name: str, date_start: datetime.date, date_end: datetime.d
 
 
 async def delete_group(group_id: int) -> None:
-    """
-    Deletes group
-
-    :param group_id:
-    :return None:
-    """
+    # Group.delete().where(Group.c.column_name == group_id)
+    # return None
+    pass
 
 
 async def report_for_success(slave_id: int) -> None:
