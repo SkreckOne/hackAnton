@@ -47,7 +47,7 @@ def get_fullname(id: int) -> str:
     return 'Василий Владмирович Панин'
 
 
-def create_group(name: str) -> int:
+def create_group(name: str, token: str, master_id: int) -> int:
     """
     Creates group
 
