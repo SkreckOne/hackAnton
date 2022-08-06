@@ -12,7 +12,7 @@ class Master(Base):
 
     __tablename__ = "master"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     gid = relationship("Group", cascade="all, delete")
     name = Column(String)
     OTMslaves = relationship("Slave", cascade="all, delete")
@@ -21,7 +21,7 @@ class Master(Base):
 
 class Group(Base):
     __tablename__ = "group"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     masterid = Column(Integer, ForeignKey("master.id"))
     token = Column(String)
 
@@ -29,7 +29,7 @@ class Group(Base):
 class Task(Base):
     __tablename__ = "task"
     
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     task_text = Column(Text)
     masterid = Column(Integer, ForeignKey("master.id"))
     slave_id = Column(Integer, ForeignKey("slave.id"))
@@ -39,7 +39,7 @@ class Task(Base):
 class Slave(Base):
     __tablename__ = "slave"
     
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     masterid = Column(Integer, ForeignKey("master.id"))
     

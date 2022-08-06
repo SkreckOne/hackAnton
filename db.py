@@ -1,6 +1,7 @@
 import datetime
-from databasegenerator import *
+import sqlite3
 
+conn = sqlite3.connect("database.db")
 
 def is_exist(login: str) -> bool:
     """
@@ -79,12 +80,8 @@ def create_task(name: str, date_start: datetime.date, date_end: datetime.date, t
 
 
 def delete_group(group_id: int) -> None:
-    """
-    Deletes group
-
-    :param group_id:
-    :return None:
-    """
+    conn.execute(f"DELETE FROM Group WHERE id = {group_id};")
+    return None
 
 
 def report_for_success(slave_id: int) -> None:
@@ -94,3 +91,5 @@ def report_for_success(slave_id: int) -> None:
     :param slave_id:
     :return:
     """
+    
+delete_group(1)
