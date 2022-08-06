@@ -24,11 +24,11 @@ async def get_user_id_by_login(login: str) -> int:
     return 1
 
 
-async def get_role() -> str:
+async def get_role(id: int) -> str:
     """
     Returns user role
 
-    :param login:
+    :param id:
     :return 'master' or 'slave':
     """
 
