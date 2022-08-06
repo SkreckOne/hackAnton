@@ -1,47 +1,61 @@
-from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy import Column, Date, Integer, String, Text
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import backref
-from sqlalchemy.orm import declarative_base, relationship
-
-engine = create_engine('sqlite:///database.db', echo=True)
-Base = declarative_base()
+import sqlite3
 
 
-class Master(Base):
+def create_db():
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
 
-    __tablename__ = "master"
+    cur.execute("""
+    CREATE TABLE master
+(
+    id   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name VARCHAR
+);""")
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    gid = relationship("Group", cascade="all, delete")
-    name = Column(String)
-    OTMslaves = relationship("Slave", cascade="all, delete")
-    OTMtasks = relationship("Task", cascade="all, delete")
+    cur.execute("""
+    CREATE TABLE "group"
+(
+    id       INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name     VARCHAR,
+    masterid INTEGER,
+    token    VARCHAR,
+    FOREIGN KEY (masterid) REFERENCES master (id) ON DELETE SET NULL
+);""")
+
+    cur.execute("""
+    CREATE TABLE subtask
+(
+    id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    slaveid INTEGER,
+    taskid  INTEGER,
+    done    BOOLEAN,
+    FOREIGN KEY (slaveid) REFERENCES slave (id) ON DELETE SET NULL,
+    FOREIGN KEY (taskid) REFERENCES task (id) ON DELETE SET NULL
+);""")
+
+    cur.execute("""
+    CREATE TABLE slave
+(
+    id       INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name     VARCHAR,
+    groupid INTEGER,
+    FOREIGN KEY (groupid) REFERENCES master (id) ON DELETE SET NULL
+);""")
+
+    cur.execute("""
+    CREATE TABLE task
+(
+    id        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    task_text VARCHAR,
+    date_start DATE,
+    time_start TIME,
+    date_end DATE,
+    time_end TIME,
+    masterid  INTEGER,
+    FOREIGN KEY (masterid) REFERENCES master (id) ON DELETE SET NULL
+);""")
+    cur.close()
 
 
-class Group(Base):
-    __tablename__ = "group"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    masterid = Column(Integer, ForeignKey("master.id"))
-    token = Column(String)
-
-
-class Task(Base):
-    __tablename__ = "task"
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    task_text = Column(Text)
-    masterid = Column(Integer, ForeignKey("master.id"))
-    slave_id = Column(Integer, ForeignKey("slave.id"))
-    slave = relationship("Slave", backref=backref("task", uselist=False, nullable=True), cascade="all, delete")
-    
-
-class Slave(Base):
-    __tablename__ = "slave"
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
-    masterid = Column(Integer, ForeignKey("master.id"))
-    
-
-Base.metadata.create_all(engine)
+if __name__ == "__main__":
+    create_db()
