@@ -2,7 +2,7 @@ import datetime
 from databasegenerator import *
 
 
-def is_exist(login: str) -> bool:
+async def is_exist(login: str) -> bool:
     """
     Check for existing user (doesn't matter master or slave)
 
@@ -13,7 +13,7 @@ def is_exist(login: str) -> bool:
     return True
 
 
-def get_user_id_by_login(login: str) -> int:
+async def get_user_id_by_login(login: str) -> int:
     """
     Gets user by login from db
 
@@ -24,7 +24,7 @@ def get_user_id_by_login(login: str) -> int:
     return 1
 
 
-def get_role(id: int) -> str:
+async def get_role(id: int) -> str:
     """
     Returns user role
 
@@ -35,7 +35,7 @@ def get_role(id: int) -> str:
     return 'master'
 
 
-def get_fullname(id: int) -> str:
+async def get_fullname(id: int) -> str:
     """
     Returns fullname
 
@@ -46,7 +46,7 @@ def get_fullname(id: int) -> str:
     return 'Василий Владмирович Панин'
 
 
-def create_group(name: str) -> int:
+async def create_group(name: str) -> int:
     """
     Creates group
 
@@ -55,7 +55,7 @@ def create_group(name: str) -> int:
     """
 
 
-def set_salve_to_group(group_id: int, slave_id: int) -> None:
+async def set_salve_to_group(group_id: int, slave_id: int) -> None:
     """
     Sets slave to group
 
@@ -65,7 +65,7 @@ def set_salve_to_group(group_id: int, slave_id: int) -> None:
     """
 
 
-def create_task(name: str, date_start: datetime.date, date_end: datetime.date, time_start: datetime.time, time_end: datetime.time) -> int:
+async def create_task(name: str, date_start: datetime.date, date_end: datetime.date, time_start: datetime.time, time_end: datetime.time) -> int:
     """
     Create task
 
@@ -78,7 +78,7 @@ def create_task(name: str, date_start: datetime.date, date_end: datetime.date, t
     """
 
 
-def delete_group(group_id: int) -> None:
+async def delete_group(group_id: int) -> None:
     """
     Deletes group
 
@@ -87,7 +87,7 @@ def delete_group(group_id: int) -> None:
     """
 
 
-def report_for_success(slave_id: int) -> None:
+async def report_for_success(slave_id: int) -> None:
     """
     Sets flag tells system that slave completed him job
 
