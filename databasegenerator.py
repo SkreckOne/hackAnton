@@ -8,7 +8,6 @@ engine = create_engine('sqlite:///database.db', echo=True)
 Base = declarative_base()
 
 
-
 class Master(Base):
 
     __tablename__ = "master"
@@ -19,11 +18,13 @@ class Master(Base):
     OTMslaves = relationship("Slave")
     OTMtasks = relationship("Task")
 
+
 class Group(Base):
     __tablename__ = "group"
     id = Column(Integer, primary_key=True)
     masterid = Column(Integer, ForeignKey("master.id"))
     token = Column(String)
+
 
 class Task(Base):
     __tablename__ = "task"
