@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 aiogram
+=======
+SQLAlchemy==1.4.39
+>>>>>>> origin/main
