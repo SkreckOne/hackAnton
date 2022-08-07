@@ -54,27 +54,22 @@ def set_salve_to_group(group_id: int, slave_id: int) -> None:
     conn.commit()
 
 
-def create_task(text: str, date_start: datetime.date, date_end: datetime.date, time_start: datetime.time,
-                time_end: datetime.time) -> int:
+def create_task(text: str, date_start: str, date_end: str, time_start: str,
+                time_end: str, masterid: int, groupid:int) -> int:
     cur.execute(f'''
-    INSERT INTO task (task_text, date_start, time_start, date_end, time_end, masterid)
-    VALUES ('{text}', '{str(date_start)}', '{str(time_start)}', '{str(date_end)}', '{str(time_end)}', 2);''')
+    INSERT INTO task (task_text, date_start, time_start, date_end, time_end, masterid, groupid)
+    VALUES ('{text}', '{str(date_start)}', '{str(time_start)}', '{str(date_end)}', '{str(time_end)}', '{masterid}', '{groupid}');''')
     conn.commit()
 
 
-def create_subtask(tsak_id: int, slave_id: int) -> int:
-    """
-    Creates subtask for main task
-
-    :param tsak_id:
-    :param slvae_id:
-    :return:
-    """
+def get_task_by_group_id(group_id: int):
+    return cur.execute(f'''
+    SELECT * FROM task WHERE groupid = {group_id}''').fetchone()
 
 
 def get_group_id_by_name(name: str):
     res = cur.execute(f'''
-    SELECT * FROM "group" WHERE name = '{name}';''').fetchone()
+    SELECT * FROM "group" WHERE name = '{name}';''').fetchone()[0]
     if res:
         return res
     else:
@@ -118,3 +113,7 @@ def count_slaves(group_id: int):
     res = cur.execute(f'''
     SELECT count(*) FROM slave WHERE groupid = {group_id}''').fetchone()
     return res[0]
+
+
+def count_done_slaves(group_id):
+    return cur.execute(f'''SELECT count(*) FROM slave WHERE groupid = '{group_id}' and done = true;''').fetchone()[0]

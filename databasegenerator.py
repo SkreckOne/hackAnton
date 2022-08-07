@@ -24,22 +24,12 @@ def create_db():
 );""")
 
     cur.execute("""
-    CREATE TABLE subtask
-(
-    id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    slaveid INTEGER,
-    taskid  INTEGER,
-    done    BOOLEAN,
-    FOREIGN KEY (slaveid) REFERENCES slave (id) ON DELETE SET NULL,
-    FOREIGN KEY (taskid) REFERENCES task (id) ON DELETE SET NULL
-);""")
-
-    cur.execute("""
     CREATE TABLE slave
 (
     id       INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     login    VARCHAR UNIQUE,
     name     VARCHAR,
+    done     BOOLEAN,
     groupid INTEGER,
     FOREIGN KEY (groupid) REFERENCES master (id) ON DELETE SET NULL
 );""")
