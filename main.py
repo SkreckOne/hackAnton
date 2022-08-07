@@ -106,9 +106,10 @@ async def master_menu(msg: Message, state: FSMContext):
         groups = get_masters_groups(id)
         if groups:
             for group in groups:
+                count = count_slaves(group[0])
                 group_name = group[1]
                 token = group[3]
-                await msg.answer(f'Группа {group_name}\nТокен: ** `{token}` **', parse_mode='Markdown')
+                await msg.answer(f'Группа {group_name}\nТокен: ** `{token}` **\nКоличество рабочих: {count}', parse_mode='Markdown')
         else:
             await msg.answer('Рабочих групп не создано')
     elif command == 'Удалить группу':

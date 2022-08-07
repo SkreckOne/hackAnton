@@ -112,3 +112,9 @@ def delete_group(group_id: int) -> None:
 def report_for_success(slave_id: int) -> None:
     cur.execute(f"""UPDATE subtask SET done = true WHERE slave_id = '{slave_id}';""")
     conn.commit()
+
+
+def count_slaves(group_id: int):
+    res = cur.execute(f'''
+    SELECT count(*) FROM slave WHERE groupid = {group_id}''').fetchone()
+    return res[0]
