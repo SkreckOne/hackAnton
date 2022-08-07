@@ -20,19 +20,19 @@ def get_user_id_by_login(login: str) -> int:
     return b[0]
 
 
-def get_role(id: int) -> str:
-    if cur.execute(f"""SELECT id FROM master WHERE id = {id}""").fetchone():
+def get_role(login: str) -> str:
+    if cur.execute(f"""SELECT id FROM master WHERE login = '{login}';""").fetchone():
         return 'master'
     else:
         return "slave"
 
 
-def get_fullname(id: int) -> str:
-    a = cur.execute(f"""SELECT name FROM master WHERE id = {id}""").fetchone()
+def get_fullname(login: str) -> str:
+    a = cur.execute(f"""SELECT name FROM master WHERE login = '{login}';""").fetchone()
     if a:
         return a[0]
     else:
-        b = cur.execute(f"""SELECT name FROM slave WHERE id = {id}""").fetchone()
+        b = cur.execute(f"""SELECT name FROM slave WHERE login = '{login}';""").fetchone()
         return b[0]
 
 
@@ -62,7 +62,7 @@ def create_task(text: str, date_start: datetime.date, date_end: datetime.date, t
     conn.commit()
 
 
-def create_subtask(tsak_id: int, slvae_id: int) -> int:
+def create_subtask(tsak_id: int, slave_id: int) -> int:
     """
     Creates subtask for main task
 
@@ -72,13 +72,35 @@ def create_subtask(tsak_id: int, slvae_id: int) -> int:
     """
 
 
-def get_group_id_by_name(name: str) -> int:
+def get_group_id_by_name(name: str):
     res = cur.execute(f'''
-    SELECT id FROM "group" WHERE name = '{name}';''').fetchone()
+    SELECT * FROM "group" WHERE name = '{name}';''').fetchone()
     if res:
-        return res[0]
+        return res
     else:
-        return -1
+        return None
+
+
+def get_group_by_token(token: str):
+    res = cur.execute(f'''
+    SELECT * FROM "group" WHERE token = '{token}';''').fetchone()
+    if res:
+        print(res)
+        return res
+    else:
+        return None
+
+
+def get_slave(slave_id: int):
+    res = cur.execute(f'''
+    SELECT * FROM slave WHERE id = {slave_id}''').fetchone()
+    return res
+
+
+def get_group_slaves(group_id: int):
+    res = cur.execute(f'''
+    SELECT * FROM slave WHERE groupid = {group_id}''').fetchall()
+    return res
 
 
 def delete_group(group_id: int) -> None:
