@@ -8,15 +8,16 @@ def create_db():
     cur.execute("""
     CREATE TABLE master
 (
-    id   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    name VARCHAR
+    id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    login   VARCHAR UNIQUE,
+    name    VARCHAR
 );""")
 
     cur.execute("""
     CREATE TABLE "group"
 (
     id       INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    name     VARCHAR,
+    name     VARCHAR UNIQUE,
     masterid INTEGER,
     token    VARCHAR,
     FOREIGN KEY (masterid) REFERENCES master (id) ON DELETE SET NULL
@@ -37,6 +38,7 @@ def create_db():
     CREATE TABLE slave
 (
     id       INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    login    VARCHAR UNIQUE,
     name     VARCHAR,
     groupid INTEGER,
     FOREIGN KEY (groupid) REFERENCES master (id) ON DELETE SET NULL
@@ -52,7 +54,9 @@ def create_db():
     date_end DATE,
     time_end TIME,
     masterid  INTEGER,
+    groupid   INTEGER,
     FOREIGN KEY (masterid) REFERENCES master (id) ON DELETE SET NULL
+    FOREIGN KEY (groupid) REFERENCES "group" (id) ON DELETE SET NULL
 );""")
     cur.close()
 

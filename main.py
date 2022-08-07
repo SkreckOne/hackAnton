@@ -5,21 +5,10 @@ from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from db import *
 from utils import *
+from sqlite3 import IntegrityError
 
 bot = Bot(token='5418131806:AAE_J5DDjWvDByFqp_4GJ64hH3kOxL0DWCA')
 dp = Dispatcher(bot, storage=MemoryStorage())  # May be used MongoDB, Redis etc.
-
-
-def master_menu():
-    menu = ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = [
-        'Создать группу рабочих',
-        'Назначить задание',
-        'Получить отчёты'
-    ]
-    menu.add(*buttons)
-
-    return menu
 
 
 class User(StatesGroup):
@@ -29,11 +18,11 @@ class User(StatesGroup):
 class Master(StatesGroup):
     menu = State()
     create_group = State()
+    delete_group = State()
     adding_users_to_group = State()
     create_task = State()
     set_users_to_task = State()
     get_statistic = State()
-    delete_group = State()
 
 
 # Start
@@ -57,7 +46,17 @@ async def login(msg: Message, state: FSMContext):
             await state.update_data(login=login, id=id)
             await Master.menu.set()
 
-            await msg.answer(f'Добро пожаловать {fullname}', reply_markup=master_menu())
+            menu = ReplyKeyboardMarkup(resize_keyboard=True)
+            buttons = [
+                'Создать группу рабочих',
+                'Посмотреть группы',
+                'Удалить группу',
+                'Назначить задание',
+                'Получить отчёты'
+            ]
+            menu.add(*buttons)
+
+            await msg.answer(f'Добро пожаловать, {fullname}', reply_markup=menu)
             return
         elif role == 'slave':
             print(f'Success: Slave {id}')
@@ -66,11 +65,17 @@ async def login(msg: Message, state: FSMContext):
     await msg.answer('Такой пользователь не найден')
 
 
+@dp.message_handler(commands=['exit'], state='*')
+async def logout(msg: Message, state: FSMContext):
+    await state.reset_state(False)
+    await msg.answer('Вы вышли из системы.\nДо свидания!', reply_markup=ReplyKeyboardRemove())
+
+
 # Master menu
 @dp.message_handler(state=Master.menu)
 async def master_menu(msg: Message, state: FSMContext):
     try:
-        id = await state.get_data('id')
+        id = (await state.get_data())['id']
     except Exception as e:
         print(e)
         await state.reset_state(False)
@@ -79,7 +84,25 @@ async def master_menu(msg: Message, state: FSMContext):
     command = msg.text
     if command == 'Создать группу рабочих':
         await Master.create_group.set()
-        await msg.answer('Введите название', reply_markup=ReplyKeyboardRemove())
+        await msg.answer('Введите название:', reply_markup=ReplyKeyboardRemove())
+    elif command == 'Посмотреть группы':
+        groups = get_masters_groups(id)
+        if groups:
+            for group in groups:
+                group_name = group[1]
+                token = group[3]
+                await msg.answer(f'Группа {group_name}\nТокен: ** `{token}` **', parse_mode='Markdown')
+        else:
+            await msg.answer('Рабочих групп не создано')
+    elif command == 'Удалить группу':
+        await Master.delete_group.set()
+
+        groups_buttons = ReplyKeyboardMarkup(resize_keyboard=True)
+        buttons = [group[1] for group in get_masters_groups(id)]
+        for button in buttons:
+            groups_buttons.add(button)
+        await msg.answer('Выберите группу', reply_markup=groups_buttons)
+
     elif command == 'Назначить задание':
         await Master.create_task.set()
         # todo
@@ -100,10 +123,59 @@ async def master_create_group(msg: Message, state: FSMContext):
         await state.reset_state(False)
         await msg.answer('Не авторризован. Введите /start')
 
-    token = create_token(msg.text + str(id))
-    group_id = create_group(msg.text, token, id)
-    await Master.menu.set()
-    await msg.answer(f'Группа {msg.text} создана\nТокен: `{token}`', reply_markup=master_menu())
+    menu = ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = [
+        'Создать группу рабочих',
+        'Посмотреть группы',
+        'Удалить группу',
+        'Назначить задание',
+        'Получить отчёты'
+    ]
+    menu.add(*buttons)
 
+    token = create_token(msg.text + str(id))
+    try:
+        group_id = create_group(msg.text, token, id)
+    except IntegrityError as e:
+        await msg.answer('Группа с таким название существует', reply_markup=menu)
+    except Exception as e:
+        print(e)
+        await msg.answer('Непридвиденная ошибка во время создания', reply_markup=menu)
+    else:
+        await msg.answer(f'Группа {msg.text} создана\nТокен: ** `{token}` **', reply_markup=menu, parse_mode='Markdown')
+    await Master.menu.set()
+
+
+# MAster delete group
+@dp.message_handler(state=Master.delete_group)
+async def master_delete_group(msg: Message, state: FSMContext):
+    try:
+        id = (await state.get_data())['id']
+    except Exception as e:
+        print(e)
+        await state.reset_state(False)
+        await msg.answer('Не авторризован. Введите /start')
+
+    menu = ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = [
+        'Создать группу рабочих',
+        'Посмотреть группы',
+        'Удалить группу',
+        'Назначить задание',
+        'Получить отчёты'
+    ]
+    menu.add(*buttons)
+
+    group_id = get_group_id_by_name(msg.text)
+    if group_id == -1:
+        await msg.answer('Используйте клавишы для ввода')
+        return
+    try:
+        delete_group(group_id)
+    except Exception as e:
+        await msg.answer('Ошибка удаления', reply_markup=menu)
+    else:
+        await msg.answer('Успешно удалено', reply_markup=menu)
+    await Master.menu.set()
 
 executor.start_polling(dp, skip_updates=True)
